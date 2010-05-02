@@ -80,21 +80,31 @@ for i in range(len(trace)):
     for theta in range(4):
         rank.append(ht[x, y, (pi*theta)/4 + pi/2, scale])
     rank.sort()
+    rank.reverse()
     for j in range(len(rank)):
-        print [x, y, (pi*trace[i][1])/4 + pi/2, scale]
-        print rank[j]
         if(ht[x, y, (pi*trace[i][1])/4 + pi/2, scale] == rank[j]):
-            "yes"
             histoRank[j] += 1
-        
+
+
 graphics = importr('graphics')
 graphics.hist(ro.IntVector(tuple(histoBlueI)), main='Histogram', xlab='Contrast')
 
 grdevices = importr('grDevices')
 grdevices.dev_new()
 
-graphics.hist(ro.IntVector(tuple(histoBlueI)), main='Histogram', xlab='Contrast')
+graphics.hist(ro.IntVector(tuple(histoRedI)), main='Histogram', xlab='Contrast')
 
+grdevices.dev_new()
+graphics.barplot(ro.IntVector(tuple(histoRank)), space=0)
+
+import shelve
+shelf = shelve.open('data', 'c')
+shelf['blue'] = histoBlue
+shelf['red'] = histoRed
+shelf['blueI'] = histoBlueI
+shelf['redI'] = histoRedI
+shelf['rank'] = histoRank
+shelf.close()
 
 
 cvShowImage("Bird", bird_BW)
