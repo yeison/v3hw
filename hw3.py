@@ -15,15 +15,17 @@ histoRed = []
 histoBlue = [0 for i in range(256)]
 histoRedI = []
 histoBlueI = []
-width = range(scale, (bird.width-1) - scale)
-height = range(scale, (bird.height-1) - scale)
-last = (0, 0)
+
 def maxContrast(scale):
+    width = range(scale, (bird.width-1) - scale)
+    height = range(scale, (bird.height-1) - scale)
     for i in width:
         for j in height:
+            ranked = [0, 0, 0, 0]
             contrast = None
-            for theta in range(1):
-                contrast = max(contrast, abs(dofIA2(i, j, (theta*pi)/4 + pi/2, scale, bird_BW)))
+            for theta in range(4):
+                new = abs(dofIA2(i, j, (theta*pi)/4 + pi/2, scale, bird_BW))
+                contrast = max(contrast, new)
                 
                 if bird[j][i][2] == 255:
                     redPixels.append((i,j))
@@ -34,10 +36,11 @@ def maxContrast(scale):
                     bluePixels.append((i, j))
                     histoBlue.append(contrast)
                     histoBlueI.append((10*contrast)/(bird_BW[j, i]+1))
+    return dofIA2Hash
+            
 
 def traceRed(start, clength):
     contour = []
-    contour.append(start)
     last = start
     current = start
     for j in range(clength):
@@ -51,22 +54,39 @@ def traceRed(start, clength):
         #Instead of hard coding x+1 y+1 etc.., I thought we should take
         #advantage of the fact that the grid is a euclidean plane
             x = int(current[0] + round(d*cos(theta)))
-            print "x: %s" % x
+            #print "x: %s" % x
             y = int(current[1] + round(d*sin(theta)))
-            print "y: %s" % y
+            #print "y: %s" % y
             if last != (x, y) and bird[y, x][2] == 255:
                 last = current
+                if i < 4:
+                    angle = i
+                else:
+                    angle = i-4
+                    
+                contour.append((current, angle))
                 current = (x, y)
-                contour.append(current)
                 break
     return contour
 
 
+scale = 3
+ht = maxContrast(scale)
+trace = traceRed(redPixels[0], len(redPixels))
+histoRank = [0, 0, 0, 0]
+for i in range(len(trace)):
+    x, y = trace[i][0]
+    rank = []
+    for theta in range(4):
+        rank.append(ht[x, y, (pi*theta)/4 + pi/2, scale])
+    rank.sort()
+    for j in range(len(rank)):
+        print [x, y, (pi*trace[i][1])/4 + pi/2, scale]
+        print rank[j]
+        if(ht[x, y, (pi*trace[i][1])/4 + pi/2, scale] == rank[j]):
+            "yes"
+            histoRank[j] += 1
         
-
-maxContrast(3)
-print traceRed(redPixels[0], len(redPixels))
-
 graphics = importr('graphics')
 graphics.hist(ro.IntVector(tuple(histoBlueI)), main='Histogram', xlab='Contrast')
 
