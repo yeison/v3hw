@@ -8,12 +8,16 @@ imageName =  sys.argv[1]
 shelfName = 'shelves/' + imageName + '.shelf'
 dir = 'graphs/'
 
-shelf = shelve.open(shelfName, 'r')
-histoBlue = shelf['blue']
-histoRed = shelf['red']
-histoRedI = shelf['redI']
-histoBlueI = shelf['blueI']
-histoRank = shelf['rank']
+try:
+    shelf = shelve.open(shelfName, 'r')
+    histoBlue = shelf['blue']
+    histoRed = shelf['red']
+    histoRedI = shelf['redI']
+    histoBlueI = shelf['blueI']
+    histoRank = shelf['rank']
+except anydbm.error as e:
+    print e
+    print shelfName
 
 graphics = importr('graphics')
 stats = importr('stats')
@@ -23,6 +27,7 @@ newGraph = grdevices.png
 devOff = grdevices.dev_off
 barNames = list((i*5 for i in range(256/5)))
 
+xmax = 100
 ##### Contrast Graphs #########
 newGraph(file=dir + 'bpc-' + imageName)
 graphics.barplot(ro.IntVector(tuple(histoBlue)),\
@@ -32,7 +37,7 @@ graphics.barplot(ro.IntVector(tuple(histoBlue)),\
                      names = ro.IntVector(list(i*5 for i in range(256/5))),\
                      space = 0, \
                      col = 'blue', \
-                     xlim = ro.IntVector((0,20)))
+                     xlim = ro.IntVector((0,xmax)))
 devOff()
 
 newGraph(file=dir + 'rpc-' + imageName)
@@ -43,7 +48,7 @@ graphics.barplot(ro.IntVector(tuple(histoRed)),\
                      names = ro.IntVector(list(i*5 for i in range(256/5))),\
                      space = 0, \
                      col = 'red', \
-                     xlim = ro.IntVector((0,20)))
+                     xlim = ro.IntVector((0,xmax)))
 devOff()
 
 newGraph(file=dir + 'nc-' + imageName)
@@ -52,7 +57,7 @@ graphics.plot(spline(ro.IntVector(tuple(histoBlue))),\
                   ylab='Frequency',\
                   xlab='Contrast x 5',\
                   col = 'blue',\
-                  xlim = ro.IntVector((0,20)),\
+                  xlim = ro.IntVector((0,xmax)),\
                   type = 'l')
 graphics.points(spline(ro.IntVector(tuple(histoRed))),\
                     col='red',\
@@ -68,7 +73,7 @@ graphics.barplot(ro.IntVector(tuple(histoBlueI)),\
                      names = ro.IntVector(list(i*5 for i in range((256*256)/5))),\
                      space = 0, \
                      col = 'blue', \
-                     xlim = ro.IntVector((0,50)))
+                     xlim = ro.IntVector((0,xmax)))
 devOff()
 
 newGraph(file=dir + 'rprc-' + imageName)
@@ -79,7 +84,7 @@ graphics.barplot(ro.IntVector(tuple(histoRedI)),\
                      names = ro.IntVector(list(i*5 for i in range((256*256)/5))),\
                      space = 0, \
                      col = 'red', \
-                     xlim = ro.IntVector((0,50)))
+                     xlim = ro.IntVector((0,xmax)))
 devOff()
 
 newGraph(file=dir + 'nrc-' + imageName)
@@ -88,7 +93,7 @@ graphics.plot(spline(ro.IntVector(tuple(histoBlueI))),\
                   ylab='Frequency',\
                   xlab='Relative Contrast',\
                   col = 'blue',\
-                  xlim = ro.IntVector((0,50)),\
+                  xlim = ro.IntVector((0,xmax)),\
                   type = 'l')
 graphics.points(spline(ro.IntVector(tuple(histoRedI))),\
                     col='red',\

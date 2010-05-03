@@ -1,7 +1,8 @@
 import shelve
-from math import pi, log, exp
+from math import log, exp
 import sys
 
+pi = 3.1416
 shelfName = sys.argv[1]
 
 shelf = shelve.open(shelfName, 'r')

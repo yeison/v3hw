@@ -75,7 +75,7 @@ iA2 = intensityAccum2
 #Derivative of iA2 along angle theta.
 dofIA2Hash = {}
 def dofIA2(x, y, theta, s, image):
-    valueExists = getFromLUT(dofIA2Hash, x, y, theta, s)
+    valueExists = getFromLUT(dofIA2Hash, x, y, -theta, s)
     if valueExists:
         return valueExists
     d = checkAngle(theta)

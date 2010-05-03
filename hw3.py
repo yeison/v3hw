@@ -2,7 +2,9 @@
 from ImageAnalyzer import *
 from opencv import cv
 from opencv.highgui import *
+from math import pi
 import sys
+
 
 if len(sys.argv) > 1:
     imageName = sys.argv[1]
@@ -27,10 +29,10 @@ def maxContrast(scale):
         for j in height:
             contrast = None
             for theta in range(4):
-                new = abs(dofIA2(i, j, (theta*pi)/4 + pi/2, scale, bird_BW))
+                new = abs(dofIA2(i, j, (pi*theta)/4 + pi/2, scale, bird_BW))
                 contrast = max(contrast, new)
                 
-                if bird[j][i][2] == 255:
+                if bird[j][i][2] > 235:
                     redPixels.append((i,j))
                     histoRed[contrast/5] += 1
                     histoRedI[((255*contrast)/(bird_BW[j, i]+1))/5] += 1
@@ -65,15 +67,14 @@ def traceRed(start, clength):
         #If i is odd theta is diagonal to the axes
             if(i%2):
                 d = sqrt(2)
-        #Instead of pi, use a truncated estimate to increase processing speed.
-            theta = (i*3.1416)/4
+            theta = (i*pi)/4
         #Instead of hard coding x+1 y+1 etc.., I thought we should take
         #advantage of the fact that the grid is a euclidean plane
             x = int(current[0] + round(d*cos(theta)))
             #print "x: %s" % x
             y = int(current[1] + round(d*sin(theta)))
             #print "y: %s" % y
-            if last != (x, y) and bird[y, x][2] == 255:
+            if last != (x, y) and bird[y, x][2] > 235:
                 last = current
                 if i < 4:
                     angle = i
@@ -95,7 +96,12 @@ for i in range(len(trace)):
     x, y = trace[i][0]
     rank = []
     for theta in range(4):
-        rank.append(ht[x, y, (pi*theta)/4 + pi/2, scale])
+        try:
+            rank.append(ht[x, y, (pi*(theta))/4 + pi/2, scale])
+        except KeyError as e:
+            print "KeyError: %s, breaking from pixel" % e
+            break
+            
     rank.sort()
     rank.reverse()
     for j in range(len(rank)):
