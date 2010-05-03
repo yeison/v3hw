@@ -1,9 +1,6 @@
 from ImageAnalyzer import *
 from opencv import cv
 from opencv.highgui import *
-import rpy2.robjects.lib.ggplot2 as ggplot2
-import rpy2.robjects as ro
-from rpy2.robjects.packages import importr
 
 
 bird_BW = cvLoadImage("bird.J.bmp", CV_LOAD_IMAGE_GRAYSCALE)
@@ -11,17 +8,16 @@ bird = cvLoadImage("bird.J.bmp")
 
 redPixels = []
 bluePixels = []
-histoRed = []
-histoBlue = [0 for i in range(256)]
-histoRedI = []
-histoBlueI = []
+histoRed = [0 for i in range(256/5)]
+histoBlue = [0 for i in range(256/5)]
+histoRedI = [0 for i in range((256*256)/5)]
+histoBlueI = [0 for i in range((256*256)/5)]
 
 def maxContrast(scale):
     width = range(scale, (bird.width-1) - scale)
     height = range(scale, (bird.height-1) - scale)
     for i in width:
         for j in height:
-            ranked = [0, 0, 0, 0]
             contrast = None
             for theta in range(4):
                 new = abs(dofIA2(i, j, (theta*pi)/4 + pi/2, scale, bird_BW))
@@ -29,15 +25,28 @@ def maxContrast(scale):
                 
                 if bird[j][i][2] == 255:
                     redPixels.append((i,j))
-                    histoRed.append(contrast)
-                    histoRedI.append((100*contrast)/(bird_BW[j, i]+1))
+                    histoRed[contrast/5] += 1
+                    histoRedI[((255*contrast)/(bird_BW[j, i]+1))/5] += 1
             
                 else:
                     bluePixels.append((i, j))
-                    histoBlue.append(contrast)
-                    histoBlueI.append((10*contrast)/(bird_BW[j, i]+1))
+                    histoBlue[contrast/5] +=1
+                    histoBlueI[((255*contrast)/(bird_BW[j, i]+1))/5] += 1
+
+    histoRed = normalize(histoRed)
+    histoBlue = normalize(histoBlue)
+    histoRedI = normalize(histoRedI)
+    histoBlueI = normalize(histoBlueI)
     return dofIA2Hash
             
+def normalize(histo):
+    sumHist = sum(histo)
+    for i in range(len(histo)):
+        if histo[i] > 0:
+            histo[i] = 100*float(histo[i])/sumHist
+        else:
+            histo[i] = None
+    return histo
 
 def traceRed(start, clength):
     contour = []
@@ -88,20 +97,6 @@ for i in range(len(trace)):
             histoRank[j] += 1
 
 
-graphics = importr('graphics')
-graphics.hist(ro.IntVector(tuple(histoBlueI)), main='Histogram', xlab='Contrast')
-
-grdevices = importr('grDevices')
-grdevices.dev_new()
-graphics.plot(ro.IntVector(tuple(histoBlue)))
-
-grdevices.dev_new()
-
-graphics.hist(ro.IntVector(tuple(histoRedI)), main='Histogram', xlab='Contrast')
-
-grdevices.dev_new()
-graphics.barplot(ro.IntVector(tuple(histoRank)), space=0)
-
 import shelve
 shelf = shelve.open('data', 'c')
 shelf['blue'] = histoBlue
@@ -112,8 +107,3 @@ shelf['rank'] = histoRank
 shelf['contrasts'] = ht
 shelf['rankIds'] = rankIds
 shelf.close()
-
-
-cvShowImage("Bird", bird_BW)
-cvShowImage("Bird2", bird)
-cvWaitKey()
