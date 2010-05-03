@@ -74,6 +74,7 @@ scale = 3
 ht = maxContrast(scale)
 trace = traceRed(redPixels[0], len(redPixels))
 histoRank = [0, 0, 0, 0]
+rankIds = [[], [], [], []]
 for i in range(len(trace)):
     x, y = trace[i][0]
     rank = []
@@ -83,6 +84,7 @@ for i in range(len(trace)):
     rank.reverse()
     for j in range(len(rank)):
         if(ht[x, y, (pi*trace[i][1])/4 + pi/2, scale] == rank[j]):
+            rankIds[j].append(((x, y), (pi*trace[i][1])/4 + pi/2, scale))
             histoRank[j] += 1
 
 
@@ -90,6 +92,9 @@ graphics = importr('graphics')
 graphics.hist(ro.IntVector(tuple(histoBlueI)), main='Histogram', xlab='Contrast')
 
 grdevices = importr('grDevices')
+grdevices.dev_new()
+graphics.plot(ro.IntVector(tuple(histoBlue)))
+
 grdevices.dev_new()
 
 graphics.hist(ro.IntVector(tuple(histoRedI)), main='Histogram', xlab='Contrast')
@@ -104,6 +109,8 @@ shelf['red'] = histoRed
 shelf['blueI'] = histoBlueI
 shelf['redI'] = histoRedI
 shelf['rank'] = histoRank
+shelf['contrasts'] = ht
+shelf['rankIds'] = rankIds
 shelf.close()
 
 
