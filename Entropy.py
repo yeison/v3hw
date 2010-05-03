@@ -1,7 +1,10 @@
 import shelve
 from math import pi, log, exp
+import sys
 
-shelf = shelve.open('data', 'r')
+shelfName = sys.argv[1]
+
+shelf = shelve.open(shelfName, 'r')
 rankIds = shelf['rankIds']
 D = shelf['contrasts']
 ranks = shelf['rank']

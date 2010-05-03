@@ -1,14 +1,22 @@
+#!/usr/bin/env python
 from ImageAnalyzer import *
 from opencv import cv
 from opencv.highgui import *
+import sys
 
-bird_BW = cvLoadImage("bird.J.bmp", CV_LOAD_IMAGE_GRAYSCALE)
-bird = cvLoadImage("bird.J.bmp")
+if len(sys.argv) > 1:
+    imageName = sys.argv[1]
+else:
+    imageName = sys.argv[0]
 
-redPixels = []
-bluePixels = []
+
+bird_BW = cvLoadImage(imageName, CV_LOAD_IMAGE_GRAYSCALE)
+bird = cvLoadImage(imageName)
+
 
 def maxContrast(scale):
+    redPixels = []
+    bluePixels = []
     histoRed = [0 for i in range(256/5)]
     histoBlue = [0 for i in range(256/5)]
     histoRedI = [0 for i in range((256*256)/5)]
@@ -36,7 +44,7 @@ def maxContrast(scale):
     histoBlue = normalize(histoBlue)
     histoRedI = normalize(histoRedI)
     histoBlueI = normalize(histoBlueI)
-    return dofIA2Hash, histoRed, histoBlue, histoRedI, histoBlueI
+    return dofIA2Hash, histoRed, histoBlue, histoRedI, histoBlueI, redPixels, bluePixels
             
 def normalize(histo):
     sumHist = sum(histo)
@@ -79,7 +87,7 @@ def traceRed(start, clength):
 
 
 scale = 3
-ht, histoRed, histoBlue, histoRedI, histoBlueI = maxContrast(scale)
+ht, histoRed, histoBlue, histoRedI, histoBlueI, redPixels, bluePixels = maxContrast(scale)
 trace = traceRed(redPixels[0], len(redPixels))
 histoRank = [0, 0, 0, 0]
 rankIds = [[], [], [], []]
@@ -97,7 +105,8 @@ for i in range(len(trace)):
 
 
 import shelve
-shelf = shelve.open('data', 'c')
+dbName = 'shelves/' + imageName.split('images/')[1] + '.shelf'
+shelf = shelve.open(dbName, 'c')
 shelf['blue'] = histoBlue
 shelf['red'] = histoRed
 shelf['blueI'] = histoBlueI

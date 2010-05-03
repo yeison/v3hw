@@ -2,11 +2,13 @@ import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
 import shelve
 from opencv.highgui import *
+import sys
 
-bird_BW = cvLoadImage("bird.J.bmp", CV_LOAD_IMAGE_GRAYSCALE)
-bird = cvLoadImage("bird.J.bmp")
+imageName =  sys.argv[1]
+shelfName = 'shelves/' + imageName + '.shelf'
+dir = 'graphs/'
 
-shelf = shelve.open('data', 'r')
+shelf = shelve.open(shelfName, 'r')
 histoBlue = shelf['blue']
 histoRed = shelf['red']
 histoRedI = shelf['redI']
@@ -15,12 +17,14 @@ histoRank = shelf['rank']
 
 graphics = importr('graphics')
 stats = importr('stats')
-grdevices = importr('grDevices')
 spline = stats.spline
-newGraph = grdevices.dev_new
+grdevices = importr('grDevices')
+newGraph = grdevices.png
+devOff = grdevices.dev_off
 barNames = list((i*5 for i in range(256/5)))
 
 ##### Contrast Graphs #########
+newGraph(file=dir + 'bpc-' + imageName)
 graphics.barplot(ro.IntVector(tuple(histoBlue)),\
                      main='Histogram of Blue-Pixel Contrast',\
                      xlab='Contrast',\
@@ -29,7 +33,9 @@ graphics.barplot(ro.IntVector(tuple(histoBlue)),\
                      space = 0, \
                      col = 'blue', \
                      xlim = ro.IntVector((0,20)))
-newGraph()
+devOff()
+
+newGraph(file=dir + 'rpc-' + imageName)
 graphics.barplot(ro.IntVector(tuple(histoRed)),\
                      main='Histogram of Red-Pixel Contrast',\
                      xlab='Contrast',\
@@ -38,9 +44,9 @@ graphics.barplot(ro.IntVector(tuple(histoRed)),\
                      space = 0, \
                      col = 'red', \
                      xlim = ro.IntVector((0,20)))
+devOff()
 
-
-newGraph()
+newGraph(file=dir + 'nc-' + imageName)
 graphics.plot(spline(ro.IntVector(tuple(histoBlue))),\
                   main = 'Normalized Histogram of Contrasts',
                   ylab='Frequency',\
@@ -51,9 +57,10 @@ graphics.plot(spline(ro.IntVector(tuple(histoBlue))),\
 graphics.points(spline(ro.IntVector(tuple(histoRed))),\
                     col='red',\
                     type='l')
+devOff()
 
 ##### Relative Contrast Graphs #############xs
-newGraph()
+newGraph(file=dir + 'bprc-' + imageName)
 graphics.barplot(ro.IntVector(tuple(histoBlueI)),\
                      main='Histogram of Blue-Pixel Relative Contrast',\
                      xlab='Relative Contrast',\
@@ -62,7 +69,9 @@ graphics.barplot(ro.IntVector(tuple(histoBlueI)),\
                      space = 0, \
                      col = 'blue', \
                      xlim = ro.IntVector((0,50)))
-newGraph()
+devOff()
+
+newGraph(file=dir + 'rprc-' + imageName)
 graphics.barplot(ro.IntVector(tuple(histoRedI)),\
                      main='Histogram of Red-Pixel Relative Contrast',\
                      xlab='Relative Contrast',\
@@ -71,8 +80,9 @@ graphics.barplot(ro.IntVector(tuple(histoRedI)),\
                      space = 0, \
                      col = 'red', \
                      xlim = ro.IntVector((0,50)))
+devOff()
 
-newGraph()
+newGraph(file=dir + 'nrc-' + imageName)
 graphics.plot(spline(ro.IntVector(tuple(histoBlueI))),\
                   main = 'Normalized Histogram of Relative Contrasts',
                   ylab='Frequency',\
@@ -83,16 +93,14 @@ graphics.plot(spline(ro.IntVector(tuple(histoBlueI))),\
 graphics.points(spline(ro.IntVector(tuple(histoRedI))),\
                     col='red',\
                     type='l')
+devOff()
 
 ######## Rank Graph #############
-newGraph()
+newGraph(file=dir + 'rank-' + imageName)
 graphics.barplot(ro.IntVector(tuple(histoRank)),\
                      main = 'Histogram of Ranks',\
                      names = ro.IntVector((1, 2, 3, 4)),\
                      xlab = 'Rank',\
                      ylab = 'Frequency',\
                      space=0)
-
-cvShowImage("Bird", bird_BW)
-cvShowImage("Bird2", bird)
-cvWaitKey()
+devOff()
