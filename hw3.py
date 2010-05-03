@@ -2,18 +2,17 @@ from ImageAnalyzer import *
 from opencv import cv
 from opencv.highgui import *
 
-
 bird_BW = cvLoadImage("bird.J.bmp", CV_LOAD_IMAGE_GRAYSCALE)
 bird = cvLoadImage("bird.J.bmp")
 
 redPixels = []
 bluePixels = []
-histoRed = [0 for i in range(256/5)]
-histoBlue = [0 for i in range(256/5)]
-histoRedI = [0 for i in range((256*256)/5)]
-histoBlueI = [0 for i in range((256*256)/5)]
 
 def maxContrast(scale):
+    histoRed = [0 for i in range(256/5)]
+    histoBlue = [0 for i in range(256/5)]
+    histoRedI = [0 for i in range((256*256)/5)]
+    histoBlueI = [0 for i in range((256*256)/5)]
     width = range(scale, (bird.width-1) - scale)
     height = range(scale, (bird.height-1) - scale)
     for i in width:
@@ -30,14 +29,14 @@ def maxContrast(scale):
             
                 else:
                     bluePixels.append((i, j))
-                    histoBlue[contrast/5] +=1
+                    histoBlue[contrast/5] += 1
                     histoBlueI[((255*contrast)/(bird_BW[j, i]+1))/5] += 1
 
     histoRed = normalize(histoRed)
     histoBlue = normalize(histoBlue)
     histoRedI = normalize(histoRedI)
     histoBlueI = normalize(histoBlueI)
-    return dofIA2Hash
+    return dofIA2Hash, histoRed, histoBlue, histoRedI, histoBlueI
             
 def normalize(histo):
     sumHist = sum(histo)
@@ -80,7 +79,7 @@ def traceRed(start, clength):
 
 
 scale = 3
-ht = maxContrast(scale)
+ht, histoRed, histoBlue, histoRedI, histoBlueI = maxContrast(scale)
 trace = traceRed(redPixels[0], len(redPixels))
 histoRank = [0, 0, 0, 0]
 rankIds = [[], [], [], []]

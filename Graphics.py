@@ -20,11 +20,12 @@ spline = stats.spline
 newGraph = grdevices.dev_new
 barNames = list((i*5 for i in range(256/5)))
 
-
+##### Contrast Graphs #########
 graphics.barplot(ro.IntVector(tuple(histoBlue)),\
                      main='Histogram of Blue-Pixel Contrast',\
                      xlab='Contrast',\
                      ylab = 'Frequency x 1000',\
+                     names = ro.IntVector(list(i*5 for i in range(256/5))),\
                      space = 0, \
                      col = 'blue', \
                      xlim = ro.IntVector((0,20)))
@@ -33,57 +34,63 @@ graphics.barplot(ro.IntVector(tuple(histoRed)),\
                      main='Histogram of Red-Pixel Contrast',\
                      xlab='Contrast',\
                      ylab = 'Frequency',\
+                     names = ro.IntVector(list(i*5 for i in range(256/5))),\
                      space = 0, \
                      col = 'red', \
-                     xlim = ro.IntVector((0,15)))
+                     xlim = ro.IntVector((0,20)))
 
 
 newGraph()
 graphics.plot(spline(ro.IntVector(tuple(histoBlue))),\
-                  main = 'Normalized Histogram of Pixel Contrasts',
+                  main = 'Normalized Histogram of Contrasts',
                   ylab='Frequency',\
                   xlab='Contrast x 5',\
                   col = 'blue',\
-                  xlim = ro.IntVector((0,16)),\
+                  xlim = ro.IntVector((0,20)),\
                   type = 'l')
 graphics.points(spline(ro.IntVector(tuple(histoRed))),\
                     col='red',\
                     type='l')
 
-#####
+##### Relative Contrast Graphs #############xs
 newGraph()
 graphics.barplot(ro.IntVector(tuple(histoBlueI)),\
                      main='Histogram of Blue-Pixel Relative Contrast',\
-                     xlab='Contrast',\
-                     ylab = 'Frequency',\
+                     xlab='Relative Contrast',\
+                     ylab = 'Frequency x 1000',\
+                     names = ro.IntVector(list(i*5 for i in range((256*256)/5))),\
                      space = 0, \
                      col = 'blue', \
-                     xlim = ro.IntVector((0,400)))
+                     xlim = ro.IntVector((0,50)))
 newGraph()
 graphics.barplot(ro.IntVector(tuple(histoRedI)),\
                      main='Histogram of Red-Pixel Relative Contrast',\
-                     xlab='Contrast',\
+                     xlab='Relative Contrast',\
                      ylab = 'Frequency',\
+                     names = ro.IntVector(list(i*5 for i in range((256*256)/5))),\
                      space = 0, \
                      col = 'red', \
-                     xlim = ro.IntVector((0,400)))
-
+                     xlim = ro.IntVector((0,50)))
 
 newGraph()
 graphics.plot(spline(ro.IntVector(tuple(histoBlueI))),\
-                  main = 'Normalized Histogram of Pixel Relative Contrasts',
+                  main = 'Normalized Histogram of Relative Contrasts',
                   ylab='Frequency',\
-                  xlab='Contrast',\
+                  xlab='Relative Contrast',\
                   col = 'blue',\
-                  xlim = ro.IntVector((0,400)),\
+                  xlim = ro.IntVector((0,50)),\
                   type = 'l')
-graphics.points(spline(ro.IntVector(tuple(histoRed))),\
+graphics.points(spline(ro.IntVector(tuple(histoRedI))),\
                     col='red',\
                     type='l')
 
-
+######## Rank Graph #############
 newGraph()
 graphics.barplot(ro.IntVector(tuple(histoRank)),\
+                     main = 'Histogram of Ranks',\
+                     names = ro.IntVector((1, 2, 3, 4)),\
+                     xlab = 'Rank',\
+                     ylab = 'Frequency',\
                      space=0)
 
 cvShowImage("Bird", bird_BW)
